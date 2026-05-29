@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0">
+    <title>لوحة القيادة الموحدة - كدانه</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script async src="https://platform.twitter.com/widgets.js"></script>
+
+    <style>
+        /* ================= خطوط كدانه الرسمية ================= */
+        @font-face {
+            font-family: 'Avenir Next Arabic';
+            src: url('Linotype - Avenir Next Arabic Regular.otf') format('opentype');
+            font-weight: 400; font-style: normal; font-display: swap;
+        }
+        @font-face {
+            font-family: 'Avenir Next Arabic';
+            src: url('Linotype - Avenir Next Arabic Demi.otf') format('opentype');
+            font-weight: 600; font-style: normal; font-display: swap;
+        }
+        @font-face {
+            font-family: 'Avenir Next Arabic';
+            src: url('Linotype - Avenir Next Arabic Bold.otf') format('opentype');
+            font-weight: 700; font-style: normal; font-display: swap;
+        }
+
+        /* ================= المتغيرات — الوضع الداكن ================= */
+        :root[data-theme="dark"] {
+            --bg-body:   #131517;
+            --bg-card:   #1E2024;
+            --bg-input:  #2A2D32;
+            --text-main: #FFFFFF;
+            --text-muted:#8E95A3;
+            --border-color: rgba(255,255,255,0.05);
+            --border:    rgba(255,255,255,0.08);
+            --card-shadow: none;
+            --kidana-gold:       #B09666;
+            --kidana-gold-hover: #9A8358;
+            --kidana-blue:       #627D8C;
+            --kidana-olive:      #6A805B;
+            --danger:   #E74C3C;
+            --success:  #2ECC71;
+            --icon-bg-blue:   rgba(98,125,140,0.15);  --icon-color-blue:   #7CA1B5;
+            --icon-bg-gold:   rgba(176,150,102,0.15); --icon-color-gold:   #D4B67E;
+            --icon-bg-olive:  rgba(106,128,91,0.15);  --icon-color-olive:  #8FD16A;
+            --icon-bg-purple: rgba(155,89,182,0.15);  --icon-color-purple: #B976D9;
+        }
+
+        /* ================= المتغيرات — الوضع الفاتح ================= */
+        :root[data-theme="light"] {
+            --bg-body:   #F4F5F7;
+            --bg-card:   #FFFFFF;
+            --bg-input:  #EEF0F3;
+            --text-main: #4C4F51;
+            --text-muted:#627D8C;
+            --border-color: rgba(0,0,0,0.05);
+            --border:    rgba(0,0,0,0.07);
+            --card-shadow: 0 10px 40px rgba(76,79,81,0.08);
+            --kidana-gold:       #B09666;
+            --kidana-gold-hover: #9A8358;
+            --kidana-blue:       #627D8C;
+            --kidana-olive:      #6A805B;
+            --danger:   #E74C3C;
+            --success:  #2ECC71;
+            --icon-bg-blue:   rgba(98,125,140,0.12);  --icon-color-blue:   #627D8C;
+            --icon-bg-gold:   rgba(176,150,102,0.12); --icon-color-gold:   #B09666;
+            --icon-bg-olive:  rgba(106,128,91,0.12);  --icon-color-olive:  #6A805B;
+            --icon-bg-purple: rgba(76,79,81,0.12);    --icon-color-purple: #4C4F51;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box;
+            font-family:'Avenir Next Arabic','Tajawal',sans-serif;
+            transition: background-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease; }
+
+        body {
+            background-color: var(--bg-body);
+            width:100vw; height:100vh;
+            display:flex; justify-content:center; align-items:center;
+            overflow:hidden;
+        }
+
+        /* ══════════════════════════════════════════
+           شاشة العرض الرئيسية (الافتراضية)
+        ══════════════════════════════════════════ */
+        #display-screen {
+            display:flex; justify-content:center; align-items:center;
+            width:100vw; height:100vh;
+            position:fixed; inset:0; z-index:100;
+        }
+
+        .dashboard-wrapper {
+            width:1920px; height:1080px;
+            padding:40px 50px;
+            display:flex; flex-direction:column; flex-shrink:0;
+            transform-origin: top left;
+        }
+
+        /* الهيدر */
+        .header {
+            display:flex; justify-content:space-between; align-items:center;
+            height:90px; margin-bottom:30px;
+        }
+        .header-right { display:flex; align-items:center; gap:25px; }
+        .logo-box { height:80px; }
+        .logo-box img { height:100%; object-fit:contain; }
+        .header-title h1 { font-size:2.3rem; font-weight:700; line-height:1.2; color:var(--text-main); }
+        .header-title span { font-size:1.15rem; color:var(--text-muted); font-weight:600; }
+
+        .header-btns { display:flex; gap:12px; align-items:center; }
+        .theme-toggle-btn {
+            background:var(--bg-card); border:none;
+            width:65px; height:65px; border-radius:20px;
+            display:flex; justify-content:center; align-items:center;
+            cursor:pointer; box-shadow:var(--card-shadow);
+            color:var(--text-main); font-size:1.6rem; transition:transform 0.2s;
+        }
+        .theme-toggle-btn:active { transform:scale(0.95); }
+
+        /* زر لوحة التحكم في الهيدر */
+        .admin-access-btn {
+            background:var(--bg-card); border:none;
+            height:65px; padding:0 22px; border-radius:20px;
+            display:flex; justify-content:center; align-items:center; gap:10px;
+            cursor:pointer; box-shadow:var(--card-shadow);
+            color:var(--text-muted); font-size:1.1rem; font-weight:600;
+            transition:color 0.2s, background 0.2s;
+        }
+        .admin-access-btn:hover { color:var(--kidana-gold); }
+        .admin-access-btn i { font-size:1.3rem; }
+
+        /* الشبكة الرئيسية */
+        .dashboard-grid {
+            display:grid;
+            grid-template-columns:repeat(4,1fr);
+            grid-template-rows:320px 1fr 80px;
+            gap:25px;
+            height:calc(1080px - 160px);
+        }
+
+        .bento-card {
+            background:var(--bg-card); border-radius:24px;
+            box-shadow:var(--card-shadow); position:relative; overflow:hidden;
+        }
+
+        /* الصور */
+        .media-card { grid-column:span 3; padding:0; background:#000; }
+        .slider-image {
+            width:100%; height:100%; object-fit:cover;
+            position:absolute; top:0; left:0;
+            opacity:0; transition:opacity 1.5s ease-in-out;
+        }
+        .slider-image.active { opacity:1; }
+        .media-overlay {
+            position:absolute; bottom:0; left:0; width:100%;
+            padding:40px 30px 25px 30px;
+            background:linear-gradient(to top,rgba(0,0,0,0.85) 0%,transparent 100%);
+            z-index:2;
+        }
+        .media-overlay h3 { font-size:1.6rem; font-weight:700; color:#fff; margin-bottom:5px; }
+        .media-overlay p  { color:#ccc; font-weight:400; font-size:1.2rem; }
+
+        /* الصلاة */
+        .prayer-card {
+            grid-column:span 1;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            padding:30px; text-align:center;
+        }
+        .time-display  { font-size:4rem; font-weight:700; line-height:1; margin-bottom:8px; color:var(--text-main); }
+        .date-display  { font-size:1.2rem; color:var(--text-muted); font-weight:600; margin-bottom:25px; }
+        .prayer-label  { font-size:1.05rem; color:var(--text-muted); font-weight:600; margin-bottom:5px; }
+        .prayer-name   { font-size:2.3rem; font-weight:700; margin-bottom:15px; color:var(--text-main); }
+        .countdown-pill {
+            background:var(--icon-bg-olive); color:var(--icon-color-olive);
+            padding:10px 24px; border-radius:12px; font-size:1.2rem; font-weight:700;
+        }
+
+        /* KPIs */
+        .kpis-wrapper {
+            grid-column:span 3;
+            display:grid; grid-template-columns:repeat(4,1fr);
+            grid-template-rows:repeat(2,1fr); gap:25px;
+        }
+        .kpi-card { padding:22px; display:flex; flex-direction:column; justify-content:space-between; }
+        .kpi-header { display:flex; justify-content:space-between; align-items:flex-start; }
+        .kpi-icon-box {
+            width:45px; height:45px; border-radius:14px;
+            display:flex; justify-content:center; align-items:center; font-size:1.3rem;
+        }
+        .icon-blue   { background:var(--icon-bg-blue);   color:var(--icon-color-blue); }
+        .icon-gold   { background:var(--icon-bg-gold);   color:var(--icon-color-gold); }
+        .icon-olive  { background:var(--icon-bg-olive);  color:var(--icon-color-olive); }
+        .icon-purple { background:var(--icon-bg-purple); color:var(--icon-color-purple); }
+        .kpi-title     { font-size:1.05rem; font-weight:700; color:var(--text-muted); }
+        .kpi-value-box { display:flex; align-items:baseline; justify-content:flex-end; gap:8px; margin-top:auto; }
+        .kpi-value { font-size:3rem; font-weight:700; line-height:1; color:var(--text-main); }
+        .kpi-unit  { font-size:0.95rem; color:var(--text-muted); font-weight:600; }
+
+        /* X */
+        .x-feed-card { grid-column:span 1; display:flex; flex-direction:column; padding:0; }
+        .x-header {
+            padding:20px 25px; border-bottom:1px solid var(--border-color);
+            display:flex; align-items:center; gap:12px;
+            font-size:1.2rem; font-weight:700; color:var(--text-main);
+        }
+        .x-header i { font-size:1.4rem; }
+        .x-body { flex:1; position:relative; overflow:hidden; border-bottom-left-radius:24px; border-bottom-right-radius:24px; }
+        .x-body iframe { width:100%; height:100%; border:none; scrollbar-width:none; }
+        .x-body iframe::-webkit-scrollbar { display:none; }
+
+        /* الشريط */
+        .ticker-card {
+            grid-column:span 4;
+            display:flex; flex-direction:row; align-items:center; padding:0 35px;
+        }
+        .ticker-label {
+            display:flex; align-items:center; gap:12px;
+            font-size:1.3rem; font-weight:700; color:var(--text-main);
+            padding-left:25px; border-left:2px solid var(--text-muted); white-space:nowrap;
+        }
+        .blinking-dot { width:14px; height:14px; background-color:#E74C3C; border-radius:50%; animation:blink 1.5s infinite; }
+        .ticker-content { flex-grow:1; padding-right:25px; position:relative; height:100%; display:flex; align-items:center; }
+        .ticker-text {
+            position:absolute; font-size:1.35rem; font-weight:600; color:var(--text-main);
+            opacity:0; transform:translateY(10px); transition:all 0.5s ease;
+        }
+        .ticker-text.show { opacity:1; transform:translateY(0); }
+        @keyframes blink { 50%{ opacity:0.3; } }
+
+        /* ══════════════════════════════════════════
+           شاشة تسجيل الدخول (تُعرض فوق الداشبورد)
+        ══════════════════════════════════════════ */
+        #login-screen {
+            position:fixed; inset:0;
+            background:rgba(19,21,23,0.92);
+            backdrop-filter:blur(12px);
+            display:none; justify-content:center; align-items:center; z-index:1500;
+        }
+        .login-box {
+            background:var(--bg-card); padding:50px; border-radius:24px;
+            width:450px; box-shadow:0 20px 50px rgba(0,0,0,0.5);
+            border:1px solid var(--border); text-align:center;
+        }
+        .login-box img { height:80px; margin-bottom:30px; }
+        .login-box h2 { margin-bottom:10px; font-size:1.8rem; }
+        .login-box p  { color:var(--text-muted); margin-bottom:30px; font-size:1rem; }
+        .form-group { text-align:right; margin-bottom:20px; }
+        .form-group label { display:block; margin-bottom:8px; font-weight:600; color:var(--text-muted); }
+        .form-control {
+            width:100%; padding:15px; border-radius:12px; border:1px solid var(--border);
+            background:var(--bg-input); color:var(--text-main); font-size:1.1rem; outline:none; transition:0.3s;
+        }
+        .form-control:focus { border-color:var(--kidana-gold); }
+        .btn-login {
+            width:100%; padding:15px; border-radius:12px; border:none;
+            background:var(--kidana-gold); color:#fff; font-size:1.2rem; font-weight:700;
+            cursor:pointer; transition:0.3s; margin-top:10px;
+        }
+        .btn-login:hover { background:var(--kidana-gold-hover); }
+        .error-msg { color:var(--danger); margin-top:15px; display:none; font-weight:600; }
+        .login-back {
+            margin-top:18px; color:var(--text-muted); cursor:pointer;
+            font-size:0.95rem; display:inline-block;
+        }
+        .login-back:hover { color:var(--text-main); }
+
+        /* ══════════════════════════════════════════
+           لوحة التحكم (Panel عائم فوق الداشبورد)
+        ══════════════════════════════════════════ */
+        #admin-panel {
+            position:fixed; inset:0; z-index:1200;
+            display:none;
+        }
+
+        /* الشريط الجانبي */
+        .sidebar {
+            width:280px; background:var(--bg-card); height:100%;
+            border-left:1px solid var(--border);
+            display:flex; flex-direction:column; float:right;
+        }
+        .sidebar-header { padding:30px; text-align:center; border-bottom:1px solid var(--border); }
+        .sidebar-header img { height:60px; }
+        .nav-menu { flex:1; padding:20px 0; overflow-y:auto; }
+        .nav-item {
+            padding:15px 30px; display:flex; align-items:center; gap:15px;
+            color:var(--text-muted); font-size:1.1rem; font-weight:600; cursor:pointer; transition:0.3s;
+        }
+        .nav-item:hover { color:#fff; background:rgba(255,255,255,0.02); }
+        .nav-item.active { color:var(--kidana-gold); background:rgba(176,150,102,0.1); border-right:4px solid var(--kidana-gold); }
+        .nav-item i { font-size:1.3rem; width:25px; text-align:center; }
+        .sidebar-footer { padding:20px; border-top:1px solid var(--border); }
+        .btn-logout {
+            width:100%; padding:12px; background:transparent;
+            border:1px solid var(--danger); color:var(--danger); border-radius:10px;
+            cursor:pointer; font-weight:600; font-size:1rem; transition:0.3s;
+        }
+        .btn-logout:hover { background:var(--danger); color:#fff; }
+
+        /* المحتوى الرئيسي */
+        .admin-main {
+            width:calc(100% - 280px); height:100%; float:left;
+            background:var(--bg-body); display:flex; flex-direction:column;
+        }
+        .topbar {
+            height:80px; background:var(--bg-card); border-bottom:1px solid var(--border);
+            display:flex; justify-content:space-between; align-items:center; padding:0 40px;
+        }
+        .topbar h2 { font-size:1.5rem; }
+        .user-info { display:flex; align-items:center; gap:15px; color:var(--text-muted); }
+        .user-avatar {
+            width:45px; height:45px; background:var(--kidana-blue); border-radius:50%;
+            display:flex; justify-content:center; align-items:center; font-weight:bold; color:#fff;
+        }
+        .content-area { flex:1; padding:40px; overflow-y:auto; }
+        .section-view { display:none; animation:fadeIn 0.4s ease; }
+        .section-view.active { display:block; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+        /* الكروت */
+        .admin-card {
+            background:var(--bg-card); border-radius:16px; padding:30px;
+            border:1px solid var(--border); margin-bottom:30px;
+        }
+        .card-header {
+            border-bottom:1px solid var(--border); padding-bottom:15px; margin-bottom:25px;
+            display:flex; justify-content:space-between; align-items:center;
+        }
+        .card-header h3 { font-size:1.3rem; color:var(--kidana-gold); }
+        .btn-primary {
+            padding:10px 22px; border-radius:10px; border:none;
+            background:var(--kidana-gold); color:#fff; font-size:1rem; font-weight:700;
+            cursor:pointer; transition:0.3s; display:inline-flex; align-items:center; gap:8px;
+        }
+        .btn-primary:hover { background:var(--kidana-gold-hover); }
+        .btn-secondary {
+            padding:10px 18px; border-radius:10px; border:none;
+            background:var(--kidana-blue); color:#fff; font-size:1rem; font-weight:600;
+            cursor:pointer; transition:0.3s; display:inline-flex; align-items:center; gap:8px;
+        }
+        .btn-secondary:hover { background:#52697A; }
+
+        .form-grid   { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+        .form-grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+        .form-group  { display:flex; flex-direction:column; gap:8px; }
+        .form-group label { font-weight:600; color:var(--text-muted); font-size:0.95rem; }
+
+        /* الجداول */
+        .admin-table { width:100%; border-collapse:collapse; text-align:right; }
+        .admin-table th { color:var(--text-muted); padding:15px; border-bottom:1px solid var(--border); font-weight:600; }
+        .admin-table td { padding:13px 15px; border-bottom:1px solid var(--border); color:var(--text-main); vertical-align:middle; }
+        .action-btns { display:flex; gap:10px; }
+        .btn-icon {
+            background:var(--bg-input); border:none; width:35px; height:35px;
+            border-radius:8px; color:var(--text-main); cursor:pointer; transition:0.2s;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .btn-icon.edit:hover   { background:var(--kidana-blue); }
+        .btn-icon.delete:hover { background:var(--danger); }
+        .badge-gold { background:rgba(176,150,102,0.2); color:var(--kidana-gold); padding:5px 10px; border-radius:6px; font-size:0.9rem; }
+        .badge-blue { background:rgba(98,125,140,0.2);  color:var(--kidana-blue); padding:5px 10px; border-radius:6px; font-size:0.9rem; }
+
+        /* Toast */
+        .toast {
+            position:fixed; bottom:30px; left:30px; background:var(--success); color:#fff;
+            padding:15px 30px; border-radius:12px; font-weight:bold; font-size:1.1rem;
+            box-shadow:0 10px 30px rgba(46,204,113,0.3); transform:translateX(-300%);
+            transition:0.4s ease; z-index:9999;
+        }
+        .toast.show { transform:translateX(0); }
+
+        /* مودال */
+        .modal-overlay {
+            position:fixed; inset:0; background:rgba(0,0,0,0.65);
+            display:none; justify-content:center; align-items:center; z-index:3000;
+        }
+        .modal-overlay.open { display:flex; }
+        .modal-box {
+            background:var(--bg-card); border-radius:20px; padding:35px;
+            width:520px; border:1px solid var(--border);
+        }
+        .modal-box h3 { margin-bottom:22px; color:var(--kidana-gold); font-size:1.3rem; }
+        .modal-footer { display:flex; gap:12px; margin-top:22px; justify-content:flex-end; }
+        .btn-cancel {
+            padding:10px 22px; background:var(--bg-input); border:none; border-radius:10px;
+            color:var(--text-main); cursor:pointer; font-weight:600;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     شاشة العرض (افتراضية عند الفتح)
+══════════════════════════════════════════ -->
+<div id="display-screen">
+    <div class="dashboard-wrapper" id="dashWrapper">
+
+        <header class="header">
+            <div class="header-right">
+                <div class="logo-box">
+                    <img id="kidanaLogo" src="شعار كدانه رسمي ملون.svg" alt="كدانه"
+                         onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size:2.8rem;font-weight:700;color:var(--kidana-gold)\'>كـدانـة</div>';">
+                </div>
+                <div class="header-title">
+                    <h1>مركز عمليات التواصل والعلاقات العامة</h1>
+                    <span>الشاشة التنفيذية الموحدة — Executive Dashboard</span>
+                </div>
+            </div>
+
+            <div class="header-btns">
+                <!-- زر لوحة التحكم -->
+                <button class="admin-access-btn" onclick="showLogin()" title="لوحة التحكم">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>لوحة التحكم</span>
+                </button>
+                <!-- زر الثيم -->
+                <button class="theme-toggle-btn" onclick="toggleTheme()">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+
+            <!-- 1. الصور -->
+            <div class="bento-card media-card" id="mediaCard">
+                <div class="media-overlay">
+                    <h3>التوثيق الميداني المباشر</h3>
+                    <p>أحدث اللقطات المرفوعة من المشاعر المقدسة</p>
+                </div>
+            </div>
+
+            <!-- 2. الصلاة والوقت -->
+            <div class="bento-card prayer-card">
+                <div class="time-display" id="liveTime">00:00</div>
+                <div class="date-display" id="liveDate">--</div>
+                <div class="prayer-label">الصلاة القادمة بمكة المكرمة</div>
+                <div class="prayer-name" id="nextPrayerName">--</div>
+                <div class="countdown-pill" id="prayerCountdown">00:00:00</div>
+            </div>
+
+            <!-- 3. شبكة الإحصائيات -->
+            <div class="kpis-wrapper">
+                <div class="bento-card kpi-card">
+                    <div class="kpi-header"><div class="kpi-icon-box icon-blue"><i class="fa-regular fa-newspaper"></i></div><div class="kpi-title">الأخبار</div></div>
+                    <div class="kpi-value-box"><div class="kpi-unit">خبر</div><div class="kpi-value" id="disp-news">0</div></div>
+                </div>
+                <div class="bento-card kpi-card">
+                    <div class="kpi-header"><div class="kpi-icon-box icon-gold"><i class="fa-solid fa-camera-retro"></i></div><div class="kpi-title">الصور</div></div>
+                    <div class="kpi-value-box"><div class="kpi-unit">صورة</div><div class="kpi-value" id="disp-photos">0</div></div>
+                </div>
+                <div class="bento-card kpi-card">
+                    <div class="kpi-header"><div class="kpi-icon-box icon-olive"><i class="fa-solid fa-film"></i></div><div class="kpi-title">الأفلام</div></div>
+                    <div class="kpi-value-box"><div class="kpi-unit">فيديو</div><div class="kpi-value" id="disp-films">0</div></div>
+                </div>
+                <div class="bento-card kpi-card">
+                    <div class="kpi-header"><div class="kpi-icon-box icon-purple"><i class="fa-solid fa-pen-nib"></i></div><div class="kpi-title">التصاميم</div></div>
+                    <div class="kpi-value-box"><div class="kpi-unit">تصميم</div><div class="kpi-value" id="disp-designs">0</div></div>
+                </div>
+                <div class="bento-card kpi-card">
+                    <div class="kpi-header"><div class="kpi-icon-box icon-purple"><i class="fa-solid fa-file-lines"></i></div><div class="kpi-title">التقارير</div></div>
+                    <div class="kpi-value-box"><div class="kpi-unit">تقرير</div><div class="kpi-value" id="disp-reports">0</div></div>
+                </div>
+                <div class="bento-card kpi-card">
+                    <div class="kpi-header"><div class="kpi-icon-box icon-olive"><i class="fa-regular fa-calendar-check"></i></div><div class="kpi-title">الفعاليات</div></div>
+                    <div class="kpi-value-box"><div class="kpi-unit">فعالية</div><div class="kpi-value" id="disp-events">0</div></div>
+                </div>
+                <div class="bento-card kpi-card">
+                    <div class="kpi-header"><div class="kpi-icon-box icon-gold"><i class="fa-solid fa-bullhorn"></i></div><div class="kpi-title">الحملات</div></div>
+                    <div class="kpi-value-box"><div class="kpi-unit">حملة</div><div class="kpi-value" id="disp-campaigns">0</div></div>
+                </div>
+                <div class="bento-card kpi-card">
+                    <div class="kpi-header"><div class="kpi-icon-box icon-blue"><i class="fa-solid fa-users-viewfinder"></i></div><div class="kpi-title">الوفود</div></div>
+                    <div class="kpi-value-box"><div class="kpi-unit">وفد</div><div class="kpi-value" id="disp-delegations">0</div></div>
+                </div>
+            </div>
+
+            <!-- 4. منصة X -->
+            <div class="bento-card x-feed-card">
+                <div class="x-header"><i class="fa-brands fa-x-twitter"></i> أحدث المنشورات</div>
+                <div class="x-body" id="twitterWrapper"></div>
+            </div>
+
+            <!-- 5. شريط المهام -->
+            <div class="bento-card ticker-card">
+                <div class="ticker-label"><div class="blinking-dot"></div>المهام النشطة اليوم:</div>
+                <div class="ticker-content">
+                    <div class="ticker-text show" id="tickerText">جاري استعراض بيانات المهام التشغيلية...</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     شاشة تسجيل الدخول (تظهر فوق الداشبورد)
+══════════════════════════════════════════ -->
+<div id="login-screen">
+    <div class="login-box">
+        <img src="شعار كدانه رسمي ملون.svg" alt="كدانه" onerror="this.style.display='none';">
+        <h2>تسجيل الدخول للإدارة</h2>
+        <p>لوحة التحكم بشاشة العرض التنفيذية</p>
+        <div class="form-group">
+            <label>اسم المستخدم</label>
+            <input type="text" id="username" class="form-control" placeholder="أدخل اسم المستخدم">
+        </div>
+        <div class="form-group">
+            <label>كلمة المرور</label>
+            <input type="password" id="password" class="form-control" placeholder="أدخل كلمة المرور">
+        </div>
+        <div id="login-error" class="error-msg">بيانات الدخول غير صحيحة!</div>
+        <button class="btn-login" onclick="checkLogin()">دخول <i class="fa-solid fa-arrow-left" style="margin-right:10px;"></i></button>
+        <div class="login-back" onclick="hideLogin()">← إلغاء والعودة للشاشة</div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     لوحة التحكم
+══════════════════════════════════════════ -->
+<div id="admin-panel">
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="شعار كدانه رسمي ملون.svg" alt="كدانه" onerror="this.style.display='none';">
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item active" onclick="switchTab('stats',this)"><i class="fa-solid fa-chart-pie"></i> إدارة الإحصائيات</div>
+            <div class="nav-item" onclick="switchTab('media',this)"><i class="fa-solid fa-images"></i> إدارة الوسائط (الصور)</div>
+            <div class="nav-item" onclick="switchTab('tasks',this)"><i class="fa-solid fa-list-check"></i> مهام الإدارات (الشريط)</div>
+            <div class="nav-item" onclick="switchTab('twitter',this)"><i class="fa-brands fa-x-twitter"></i> منشورات منصة X</div>
+            <div class="nav-item" onclick="switchTab('users',this)"><i class="fa-solid fa-users-gear"></i> إدارة المستخدمين</div>
+        </div>
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج</button>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div class="topbar">
+            <h2 id="page-title">إدارة الإحصائيات</h2>
+            <div class="user-info">
+                <span>مرحباً، مدير النظام</span>
+                <div class="user-avatar">A</div>
+            </div>
+        </div>
+
+        <div class="content-area">
+
+            <!-- ── إحصائيات ── -->
+            <div id="view-stats" class="section-view active">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h3>الأرقام الأساسية (KPIs)</h3>
+                        <button class="btn-primary" onclick="saveKPIs()"><i class="fa-solid fa-floppy-disk"></i> حفظ وتحديث الشاشة</button>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>الأخبار المنشورة</label><input type="number" id="kpi-news" class="form-control" value="1245"></div>
+                        <div class="form-group"><label>الصور الملتقطة</label><input type="number" id="kpi-photos" class="form-control" value="8430"></div>
+                        <div class="form-group"><label>الأفلام المنتجة</label><input type="number" id="kpi-films" class="form-control" value="112"></div>
+                        <div class="form-group"><label>التصاميم المنجزة</label><input type="number" id="kpi-designs" class="form-control" value="456"></div>
+                        <div class="form-group"><label>التقارير المرفوعة</label><input type="number" id="kpi-reports" class="form-control" value="89"></div>
+                        <div class="form-group"><label>الفعاليات الحالية</label><input type="number" id="kpi-events" class="form-control" value="14"></div>
+                        <div class="form-group"><label>الحملات الإعلانية</label><input type="number" id="kpi-campaigns" class="form-control" value="6"></div>
+                        <div class="form-group"><label>الوفود المستضافة</label><input type="number" id="kpi-delegations" class="form-control" value="38"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── الوسائط ── -->
+            <div id="view-media" class="section-view">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h3>الصور المعروضة في السلايدر</h3>
+                        <button class="btn-secondary" onclick="openAddImageModal()"><i class="fa-solid fa-plus"></i> إضافة صورة</button>
+                    </div>
+                    <table class="admin-table">
+                        <thead><tr><th>معاينة</th><th>الرابط / المسار</th><th>الوصف</th><th>الإجراءات</th></tr></thead>
+                        <tbody id="images-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── المهام ── -->
+            <div id="view-tasks" class="section-view">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h3>مهام الإدارات (تظهر في الشريط السفلي المتحرك)</h3>
+                        <button class="btn-secondary" onclick="openAddTaskModal()"><i class="fa-solid fa-plus"></i> إضافة مهمة</button>
+                    </div>
+                    <table class="admin-table">
+                        <thead><tr><th>الإدارة</th><th>نص المهمة</th><th>الإجراءات</th></tr></thead>
+                        <tbody id="tasks-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── تويتر ── -->
+            <div id="view-twitter" class="section-view">
+                <div class="admin-card">
+                    <div class="card-header"><h3>إعداد حساب منصة X المعروض</h3></div>
+                    <div class="form-grid-3">
+                        <div class="form-group" style="grid-column:span 2;">
+                            <label>اسم الحساب على منصة X (بدون @)</label>
+                            <input type="text" id="twitter-handle" class="form-control" placeholder="kidanaksa">
+                        </div>
+                        <div class="form-group" style="align-self:flex-end;">
+                            <button class="btn-primary" onclick="saveTwitter()" style="height:52px; width:100%; justify-content:center;">
+                                <i class="fa-solid fa-floppy-disk"></i> حفظ وتحديث
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── المستخدمون ── -->
+            <div id="view-users" class="section-view">
+                <div class="admin-card">
+                    <div class="card-header"><h3>المستخدمين وصلاحيات لوحة التحكم</h3></div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>اسم المستخدم الحالي</label><input type="text" id="cfg-user" class="form-control"></div>
+                        <div class="form-group"><label>كلمة المرور الجديدة</label><input type="password" id="cfg-pass" class="form-control" placeholder="اتركه فارغاً للإبقاء"></div>
+                        <div class="form-group" style="align-self:flex-end;">
+                            <button class="btn-primary" onclick="saveCredentials()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"><i class="fa-solid fa-circle-check"></i> تم حفظ البيانات بنجاح وتحديث الشاشة!</div>
+
+<!-- مودال مهمة -->
+<div class="modal-overlay" id="taskModal">
+    <div class="modal-box">
+        <h3 id="taskModalTitle">إضافة مهمة جديدة</h3>
+        <div class="form-group" style="margin-bottom:18px;">
+            <label>الإدارة</label>
+            <input type="text" id="task-dept" class="form-control" placeholder="مثال: إدارة التواصل">
+        </div>
+        <div class="form-group">
+            <label>نص المهمة</label>
+            <input type="text" id="task-text" class="form-control" placeholder="وصف المهمة...">
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeTaskModal()">إلغاء</button>
+            <button class="btn-primary" onclick="saveTask()">حفظ</button>
+        </div>
+    </div>
+</div>
+
+<!-- مودال صورة -->
+<div class="modal-overlay" id="imageModal">
+    <div class="modal-box">
+        <h3 id="imageModalTitle">إضافة صورة جديدة</h3>
+        <div class="form-group" style="margin-bottom:18px;">
+            <label>رابط الصورة أو مسارها المحلي</label>
+            <input type="text" id="img-src" class="form-control" placeholder="assets/1.png أو https://...">
+        </div>
+        <div class="form-group">
+            <label>الوصف (اختياري)</label>
+            <input type="text" id="img-desc" class="form-control" placeholder="وصف الصورة">
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeImageModal()">إلغاء</button>
+            <button class="btn-primary" onclick="saveImage()">حفظ</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     السكريبتات
+══════════════════════════════════════════ -->
+<script>
+/* ─── متجر البيانات ─── */
+const STORE_KEY = 'kidana_data_v2';
+
+const defaultData = {
+    credentials: { user:'a', pass:'123' },
+    kpis: { news:1245, photos:8430, films:112, designs:456, reports:89, events:14, campaigns:6, delegations:38 },
+    tasks: [
+        { dept:'إدارة التواصل',  text:'الإشراف على تغطية الجولة الميدانية لوفد وزارة الحج والعمرة.' },
+        { dept:'المركز الإعلامي', text:'إنهاء مونتاج الفيلم الوثائقي الخاص بمرافق مشعر منى.' },
+        { dept:'إدارة التصميم',  text:'اعتماد الهوية البصرية للحملة التوعوية الجديدة.' },
+        { dept:'العلاقات العامة', text:'استقبال وتنسيق زيارة ضيوف كدانه الرسميين.' },
+        { dept:'قسم التحرير',    text:'صياغة التقرير الإخباري اليومي ونشره.' }
+    ],
+    images: [
+        { src:'assets/1.png', desc:'التوثيق الميداني' },
+        { src:'assets/2.png', desc:'مرافق منى' }
+    ],
+    twitter: 'kidanaksa'
+};
+
+function loadData() {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY)) || JSON.parse(JSON.stringify(defaultData)); }
+    catch { return JSON.parse(JSON.stringify(defaultData)); }
+}
+function saveData(d) { localStorage.setItem(STORE_KEY, JSON.stringify(d)); }
+
+/* ─── تهيئة شاشة العرض عند التحميل ─── */
+window.addEventListener('load', () => {
+    scaleDisplay();
+    window.addEventListener('resize', scaleDisplay);
+    loadDisplayData();
+    startClock();
+    fetchPrayerTimes();
+    setInterval(fetchPrayerTimes, 3600000);
+    setInterval(updateNextPrayer, 1000);
+
+    // استماع لتحديثات localStorage من لوحة التحكم (نفس التاب)
+    window.addEventListener('storage', () => refreshDisplay());
+});
+
+/* ─── Scale ─── */
+function scaleDisplay() {
+    const w = document.getElementById('dashWrapper');
+    const sx = window.innerWidth / 1920;
+    const sy = window.innerHeight / 1080;
+    const s  = Math.min(sx, sy);
+    w.style.transform   = `scale(${s})`;
+    w.style.marginLeft  = ((window.innerWidth  - 1920*s) / 2) + 'px';
+    w.style.marginTop   = ((window.innerHeight - 1080*s) / 2) + 'px';
+}
+
+/* ─── تسجيل الدخول ─── */
+function showLogin() {
+    document.getElementById('login-screen').style.display = 'flex';
+    setTimeout(() => document.getElementById('username').focus(), 100);
+}
+function hideLogin() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('login-error').style.display = 'none';
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+}
+function checkLogin() {
+    const d = loadData();
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+    if (user === d.credentials.user && pass === d.credentials.pass) {
+        hideLogin();
+        openAdminPanel();
+    } else {
+        document.getElementById('login-error').style.display = 'block';
+    }
+}
+document.addEventListener('keypress', e => {
+    if (e.key === 'Enter' && document.getElementById('login-screen').style.display === 'flex') checkLogin();
+});
+
+/* ─── لوحة التحكم ─── */
+function openAdminPanel() {
+    document.getElementById('admin-panel').style.display = 'block';
+    loadAdminForm();
+}
+function logout() {
+    document.getElementById('admin-panel').style.display = 'none';
+}
+
+function switchTab(id, el) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('view-' + id).classList.add('active');
+    const titles = { stats:'إدارة الإحصائيات', media:'إدارة الوسائط (الصور)', tasks:'مهام الإدارات (الشريط)', twitter:'منشورات منصة X', users:'إدارة المستخدمين' };
+    document.getElementById('page-title').innerText = titles[id];
+}
+
+function loadAdminForm() {
+    const d = loadData();
+    document.getElementById('kpi-news').value        = d.kpis.news;
+    document.getElementById('kpi-photos').value      = d.kpis.photos;
+    document.getElementById('kpi-films').value       = d.kpis.films;
+    document.getElementById('kpi-designs').value     = d.kpis.designs;
+    document.getElementById('kpi-reports').value     = d.kpis.reports;
+    document.getElementById('kpi-events').value      = d.kpis.events;
+    document.getElementById('kpi-campaigns').value   = d.kpis.campaigns;
+    document.getElementById('kpi-delegations').value = d.kpis.delegations;
+    document.getElementById('twitter-handle').value  = d.twitter;
+    document.getElementById('cfg-user').value        = d.credentials.user;
+    renderTasksTable();
+    renderImagesTable();
+}
+
+/* ─── حفظ KPIs ─── */
+function saveKPIs() {
+    const d = loadData();
+    d.kpis = {
+        news:        +document.getElementById('kpi-news').value,
+        photos:      +document.getElementById('kpi-photos').value,
+        films:       +document.getElementById('kpi-films').value,
+        designs:     +document.getElementById('kpi-designs').value,
+        reports:     +document.getElementById('kpi-reports').value,
+        events:      +document.getElementById('kpi-events').value,
+        campaigns:   +document.getElementById('kpi-campaigns').value,
+        delegations: +document.getElementById('kpi-delegations').value,
+    };
+    saveData(d);
+    refreshDisplay();
+    showToast();
+}
+
+/* ─── المهام ─── */
+let editingTaskIndex = null;
+function renderTasksTable() {
+    const tasks = loadData().tasks;
+    document.getElementById('tasks-tbody').innerHTML = tasks.map((t, i) => `
+        <tr>
+            <td style="font-weight:700;color:var(--kidana-gold);">${t.dept}</td>
+            <td>${t.text}</td>
+            <td><div class="action-btns">
+                <button class="btn-icon edit" onclick="openEditTaskModal(${i})"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn-icon delete" onclick="deleteTask(${i})"><i class="fa-solid fa-trash"></i></button>
+            </div></td>
+        </tr>`).join('');
+}
+function openAddTaskModal() {
+    editingTaskIndex = null;
+    document.getElementById('taskModalTitle').innerText = 'إضافة مهمة جديدة';
+    document.getElementById('task-dept').value = '';
+    document.getElementById('task-text').value = '';
+    document.getElementById('taskModal').classList.add('open');
+}
+function openEditTaskModal(i) {
+    editingTaskIndex = i;
+    const t = loadData().tasks[i];
+    document.getElementById('taskModalTitle').innerText = 'تعديل المهمة';
+    document.getElementById('task-dept').value = t.dept;
+    document.getElementById('task-text').value = t.text;
+    document.getElementById('taskModal').classList.add('open');
+}
+function closeTaskModal() { document.getElementById('taskModal').classList.remove('open'); }
+function saveTask() {
+    const dept = document.getElementById('task-dept').value.trim();
+    const text = document.getElementById('task-text').value.trim();
+    if (!dept || !text) return;
+    const d = loadData();
+    if (editingTaskIndex === null) d.tasks.push({ dept, text });
+    else d.tasks[editingTaskIndex] = { dept, text };
+    saveData(d); renderTasksTable(); refreshDisplay(); closeTaskModal(); showToast();
+}
+function deleteTask(i) {
+    const d = loadData(); d.tasks.splice(i, 1); saveData(d); renderTasksTable(); refreshDisplay(); showToast();
+}
+
+/* ─── الصور ─── */
+let editingImageIndex = null;
+function renderImagesTable() {
+    const images = loadData().images;
+    document.getElementById('images-tbody').innerHTML = images.map((img, i) => `
+        <tr>
+            <td><img src="${img.src}" style="height:48px;border-radius:8px;background:#333;object-fit:cover;" onerror="this.style.display='none'"></td>
+            <td style="font-size:.9rem;color:var(--text-muted);max-width:260px;word-break:break-all;">${img.src}</td>
+            <td>${img.desc || '—'}</td>
+            <td><div class="action-btns">
+                <button class="btn-icon edit" onclick="openEditImageModal(${i})"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn-icon delete" onclick="deleteImage(${i})"><i class="fa-solid fa-trash"></i></button>
+            </div></td>
+        </tr>`).join('');
+}
+function openAddImageModal() {
+    editingImageIndex = null;
+    document.getElementById('imageModalTitle').innerText = 'إضافة صورة جديدة';
+    document.getElementById('img-src').value = '';
+    document.getElementById('img-desc').value = '';
+    document.getElementById('imageModal').classList.add('open');
+}
+function openEditImageModal(i) {
+    editingImageIndex = i;
+    const img = loadData().images[i];
+    document.getElementById('imageModalTitle').innerText = 'تعديل الصورة';
+    document.getElementById('img-src').value  = img.src;
+    document.getElementById('img-desc').value = img.desc || '';
+    document.getElementById('imageModal').classList.add('open');
+}
+function closeImageModal() { document.getElementById('imageModal').classList.remove('open'); }
+function saveImage() {
+    const src  = document.getElementById('img-src').value.trim();
+    const desc = document.getElementById('img-desc').value.trim();
+    if (!src) return;
+    const d = loadData();
+    if (editingImageIndex === null) d.images.push({ src, desc });
+    else d.images[editingImageIndex] = { src, desc };
+    saveData(d); renderImagesTable(); refreshDisplay(); closeImageModal(); showToast();
+}
+function deleteImage(i) {
+    const d = loadData(); d.images.splice(i, 1); saveData(d); renderImagesTable(); refreshDisplay(); showToast();
+}
+
+/* ─── تويتر ─── */
+function saveTwitter() {
+    const d = loadData();
+    d.twitter = document.getElementById('twitter-handle').value.trim();
+    saveData(d); refreshDisplay(); showToast();
+}
+
+/* ─── بيانات الدخول ─── */
+function saveCredentials() {
+    const d = loadData();
+    const u = document.getElementById('cfg-user').value.trim();
+    const p = document.getElementById('cfg-pass').value.trim();
+    if (u) d.credentials.user = u;
+    if (p) d.credentials.pass = p;
+    saveData(d);
+    document.getElementById('cfg-pass').value = '';
+    showToast();
+}
+
+/* ══════════════════════════════════════════
+   تحديث شاشة العرض
+══════════════════════════════════════════ */
+let slideIndex = 0, slideImages = [], slideTimer = null;
+let taskIndex = 0, taskTimer = null;
+
+function refreshDisplay() {
+    const d = loadData();
+    // KPIs
+    const kpiMap = [
+        ['news','disp-news'],['photos','disp-photos'],['films','disp-films'],
+        ['designs','disp-designs'],['reports','disp-reports'],['events','disp-events'],
+        ['campaigns','disp-campaigns'],['delegations','disp-delegations']
+    ];
+    kpiMap.forEach(([key, id]) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = d.kpis[key].toLocaleString('en-US');
+    });
+    buildSlider(d.images);
+    startTicker(d.tasks);
+    loadXFeed(d.twitter);
+}
+
+function loadDisplayData() {
+    const d = loadData();
+    // عداد متحرك عند أول تحميل
+    const kpiMap = [
+        ['news','disp-news'],['photos','disp-photos'],['films','disp-films'],
+        ['designs','disp-designs'],['reports','disp-reports'],['events','disp-events'],
+        ['campaigns','disp-campaigns'],['delegations','disp-delegations']
+    ];
+    kpiMap.forEach(([key, id]) => animateCounter(id, d.kpis[key]));
+    buildSlider(d.images);
+    startTicker(d.tasks);
+    loadXFeed(d.twitter);
+}
+
+function animateCounter(elId, target) {
+    const el = document.getElementById(elId); if (!el) return;
+    const duration = 2500; let start = null;
+    const step = ts => {
+        if (!start) start = ts;
+        const p = Math.min((ts - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - p, 4);
+        el.innerText = Math.floor(ease * target).toLocaleString('en-US');
+        if (p < 1) requestAnimationFrame(step);
+        else el.innerText = target.toLocaleString('en-US');
+    };
+    setTimeout(() => requestAnimationFrame(step), 500);
+}
+
+function buildSlider(images) {
+    const card = document.getElementById('mediaCard');
+    card.querySelectorAll('.slider-image').forEach(el => el.remove());
+    if (!images || !images.length) return;
+    images.forEach((img, i) => {
+        const el = document.createElement('img');
+        el.src = img.src; el.className = 'slider-image';
+        if (i === 0) el.classList.add('active');
+        el.onerror = () => { el.style.background = '#1E2024'; };
+        card.insertBefore(el, card.querySelector('.media-overlay'));
+    });
+    slideImages = card.querySelectorAll('.slider-image');
+    slideIndex  = 0;
+    if (slideTimer) clearInterval(slideTimer);
+    if (images.length > 1) {
+        slideTimer = setInterval(() => {
+            slideImages[slideIndex].classList.remove('active');
+            slideIndex = (slideIndex + 1) % slideImages.length;
+            slideImages[slideIndex].classList.add('active');
+        }, 6000);
+    }
+}
+
+function startTicker(tasks) {
+    if (!tasks || !tasks.length) return;
+    taskIndex = 0;
+    const el = document.getElementById('tickerText');
+    el.innerText = `${tasks[0].dept}: ${tasks[0].text}`;
+    el.classList.add('show');
+    if (taskTimer) clearInterval(taskTimer);
+    taskTimer = setInterval(() => {
+        el.classList.remove('show');
+        setTimeout(() => {
+            taskIndex = (taskIndex + 1) % tasks.length;
+            el.innerText = `${tasks[taskIndex].dept}: ${tasks[taskIndex].text}`;
+            el.classList.add('show');
+        }, 500);
+    }, 6000);
+}
+
+function loadXFeed(handle = 'kidanaksa') {
+    const wrapper = document.getElementById('twitterWrapper');
+
+    wrapper.innerHTML =
+        `<a class="twitter-timeline"
+            data-theme="${document.documentElement.getAttribute('data-theme')}"
+            data-chrome="noheader nofooter noborders"
+            href="https://twitter.com/${handle}">
+            Tweets by ${handle}
+        </a>`;
+
+    // إعادة تحميل الويدجت
+    if (window.twttr && twttr.widgets) {
+        twttr.widgets.load(wrapper);
+    }
+}
+
+
+/* ── الثيم ── */
+function toggleTheme() {
+    const html = document.documentElement;
+    const icon = document.getElementById('themeIcon');
+    const logo = document.getElementById('kidanaLogo');
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    if (logo) logo.src = isDark ? 'نسخة من شعار كدانه رسمي ملون.svg' : 'شعار كدانه رسمي ملون.svg';
+    loadXFeed(loadData().twitter);
+}
+
+/* ── الوقت ── */
+function startClock() {
+    const tick = () => {
+        const now = new Date();
+        document.getElementById('liveTime').innerText = now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12:false });
+        document.getElementById('liveDate').innerText  = now.toLocaleDateString('ar-SA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    };
+    setInterval(tick, 1000); tick();
+}
+
+/* ── الصلاة ── */
+let prayerTimes = {};
+const prayerNamesAr = { Fajr:'الفجر', Dhuhr:'الظهر', Asr:'العصر', Maghrib:'المغرب', Isha:'العشاء' };
+async function fetchPrayerTimes() {
+    try {
+        const r = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Makkah&country=SA&method=4');
+        const data = await r.json();
+        prayerTimes = { Fajr:data.data.timings.Fajr, Dhuhr:data.data.timings.Dhuhr, Asr:data.data.timings.Asr, Maghrib:data.data.timings.Maghrib, Isha:data.data.timings.Isha };
+    } catch(e) { document.getElementById('nextPrayerName').innerText = '--'; }
+}
+function updateNextPrayer() {
+    if (!Object.keys(prayerTimes).length) return;
+    const now = new Date(); let nextKey = null, nextDate = null;
+    for (const [key, t] of Object.entries(prayerTimes)) {
+        const [h, m] = t.split(':'); const d = new Date(); d.setHours(h, m, 0, 0);
+        if (d > now) { nextKey = key; nextDate = d; break; }
+    }
+    if (!nextKey) {
+        nextKey = 'Fajr'; const [h, m] = prayerTimes.Fajr.split(':');
+        nextDate = new Date(); nextDate.setDate(nextDate.getDate()+1); nextDate.setHours(h, m, 0, 0);
+    }
+    document.getElementById('nextPrayerName').innerText = `صلاة ${prayerNamesAr[nextKey]}`;
+    const diff = nextDate - now;
+    const fmt  = n => n < 10 ? '0'+n : n;
+    const hh = Math.floor(diff/3600000), mm = Math.floor((diff%3600000)/60000), ss = Math.floor((diff%60000)/1000);
+    document.getElementById('prayerCountdown').innerText = `${fmt(hh)}:${fmt(mm)}:${fmt(ss)}`;
+}
+
+/* ── Toast ── */
+function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
